@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
 
-	"epam.com/go/training/models"
+	"epam.com/go/training/controllers"
 )
 
 func main() {
-	u := models.User{
-		ID:        2,
-		FirstName: "Mihir",
-		LastName:  "Jain",
-	}
-	fmt.Println(u)
+	controllers.RegistrationControllers()
+	http.ListenAndServe(":3000", nil)
 }
