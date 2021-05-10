@@ -11,10 +11,8 @@ import (
 )
 
 /*
- * Complete the 'hourglassSum' function below.
- *
- * The function is expected to return an INTEGER.
- * The function accepts 2D_INTEGER_ARRAY arr as parameter.
+ * input args - 6X6 2d array
+ * return max hour glass sum
  */
 
 func hourglassSum(arr [][]int32) int32 {
@@ -70,6 +68,9 @@ func main() {
 	writer.Flush()
 }
 
+/*
+ * generated method @hackerrank
+ */
 func readLine(reader *bufio.Reader) string {
 	str, _, err := reader.ReadLine()
 	if err == io.EOF {
@@ -79,6 +80,9 @@ func readLine(reader *bufio.Reader) string {
 	return strings.TrimRight(string(str), "\r\n")
 }
 
+/*
+ * generated method @hackerrank
+ */
 func checkError(err error) {
 	if err != nil {
 		panic(err)

@@ -41,6 +41,9 @@ func main() {
 	writer.Flush()
 }
 
+/*
+ * generated method @hackerrank
+ */
 func readLine(reader *bufio.Reader) string {
 	str, _, err := reader.ReadLine()
 	if err == io.EOF {
@@ -50,12 +53,23 @@ func readLine(reader *bufio.Reader) string {
 	return strings.TrimRight(string(str), "\r\n")
 }
 
+/*
+ * generated method @hackerrank
+ */
 func checkError(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
+/*
+ * Input arguments -
+ *                words []string - words slice
+ * 				  m map[string]string - map containing word(key) occurences at each line as space separated int stored as a string value
+ *                keys *[]string - keys slice stores all keys or words(needed for sorting)
+ *                line_count int - line number
+ *
+ */
 func word_count(words []string, m map[string]string, keys *[]string, line_count int) {
 	//Enter your code here. Read input from STDIN. Print output to STDOUT
 	for _, v := range words {

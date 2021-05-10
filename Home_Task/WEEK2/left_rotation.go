@@ -10,13 +10,15 @@ import (
 )
 
 /*
- * Complete the 'rotateLeft' function below.
+ * Input arguments -
+ *                d int32 - rotate index
+ * 				  arr []int32 - input slice
  *
- * The function is expected to return an INTEGER_ARRAY.
- * The function accepts following parameters:
- *  1. INTEGER d
- *  2. INTEGER_ARRAY arr
- */
+ * Logic - 1. Take mod of 'd' with size of slice to avoid unnescessary repetitions
+		   2. Use reverse utility function to rearrange the elements in the right position
+ * Time complexity - O(size of arr)
+ * Space complexity - O(1)
+*/
 
 func rotateLeft(d int32, arr []int32) []int32 {
 	// Write your code here
@@ -31,13 +33,32 @@ func rotateLeft(d int32, arr []int32) []int32 {
 	return arr
 }
 
-// An alternate approach; easy to read; uses extra space
+/*
+ * Input arguments -
+ *                d int32 - rotate index
+ * 				  arr []int32 - input slice
+ *
+ * Logic - 1. Take mod of 'd' with size of slice to avoid unnescessary repetitions
+		   2. Use reverse utility function to rearrange the elements in the right position
+ * Time complexity - O(size of arr)
+ * Space complexity - O(size of arr)
+*/
 func rotateLeftAlt(d int32, arr []int32) []int32 {
 	k := int(d) % len(arr)
 	arr = append(arr[k:], arr[:k]...)
 	return arr
 }
 
+/*
+ * Input arguments -
+ * 				  arr []int32   - input slice
+ * 				  start int - starting index
+ *                end int   - ending index
+ * Logic - 1. Take mod of 'd' with size of slice to avoid unnescessary repetitions
+		   2. Use reverse utility function to rearrange the elements in the right position
+ * Time complexity - O(size of arr)
+ * Space complexity - O(size of arr)
+*/
 func reverse(arr []int32, start, end int) {
 	for start < end {
 		arr[start], arr[end] = arr[end], arr[start]
@@ -91,6 +112,9 @@ func main() {
 	writer.Flush()
 }
 
+/*
+ * generated method @hackerrank
+ */
 func readLine(reader *bufio.Reader) string {
 	str, _, err := reader.ReadLine()
 	if err == io.EOF {
@@ -100,6 +124,9 @@ func readLine(reader *bufio.Reader) string {
 	return strings.TrimRight(string(str), "\r\n")
 }
 
+/*
+ * generated method @hackerrank
+ */
 func checkError(err error) {
 	if err != nil {
 		panic(err)

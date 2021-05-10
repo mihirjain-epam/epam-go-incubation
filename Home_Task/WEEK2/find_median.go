@@ -11,14 +11,14 @@ import (
 )
 
 /*
- * Complete the 'findMedian' function below.
+ * input args - array to find median
+ * return median value
  *
- * The function is expected to return an INTEGER.
- * The function accepts INTEGER_ARRAY arr as parameter.
+ * Logic - Sort array using builtin sort by passing a anonymous function as less function,
+ *		   median is the middle element after sorting
  */
 
 func findMedian(arr []int32) int32 {
-	// Write your code here
 	sort.Slice(arr, func(i, j int) bool { return arr[i] < arr[j] })
 	return arr[int(len(arr)/2)]
 }
@@ -55,6 +55,9 @@ func main() {
 	writer.Flush()
 }
 
+/*
+ * generated method @hackerrank
+ */
 func readLine(reader *bufio.Reader) string {
 	str, _, err := reader.ReadLine()
 	if err == io.EOF {
@@ -64,6 +67,9 @@ func readLine(reader *bufio.Reader) string {
 	return strings.TrimRight(string(str), "\r\n")
 }
 
+/*
+ * generated method @hackerrank
+ */
 func checkError(err error) {
 	if err != nil {
 		panic(err)
