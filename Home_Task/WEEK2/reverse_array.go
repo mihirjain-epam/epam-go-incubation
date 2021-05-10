@@ -10,10 +10,13 @@ import (
 )
 
 /*
- * Complete the 'reverseArray' function below.
+ * Input arguments -
+ * 				  a []int32 - input slice
  *
- * The function is expected to return an INTEGER_ARRAY.
- * The function accepts INTEGER_ARRAY a as parameter.
+ * Logic - For each element at index till half the size of array, swap it with (last-index) element
+ *
+ * Time complexity - O(size of arr)
+ * Space complexity - O(1)
  */
 
 func reverseArray(a []int32) []int32 {
@@ -66,6 +69,9 @@ func main() {
 	writer.Flush()
 }
 
+/*
+ * generated method @hackerrank
+ */
 func readLine(reader *bufio.Reader) string {
 	str, _, err := reader.ReadLine()
 	if err == io.EOF {
@@ -75,6 +81,9 @@ func readLine(reader *bufio.Reader) string {
 	return strings.TrimRight(string(str), "\r\n")
 }
 
+/*
+ * generated method @hackerrank
+ */
 func checkError(err error) {
 	if err != nil {
 		panic(err)
