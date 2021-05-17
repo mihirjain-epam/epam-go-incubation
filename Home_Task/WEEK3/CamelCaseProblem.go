@@ -18,7 +18,7 @@ import (
 func camelcase(s string) int32 {
 	var count int32 = 1
 	for _, r := range s {
-		if unicode.IsLetter(r) && unicode.IsUpper(r) { // s[i]>=65 && s[i]<=90
+		if unicode.IsLetter(r) && unicode.IsUpper(r) {
 			count++
 		}
 	}
