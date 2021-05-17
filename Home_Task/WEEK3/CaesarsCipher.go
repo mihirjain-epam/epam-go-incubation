@@ -29,7 +29,7 @@ const (
 
 func caesarCipher(s string, k int32) string {
 	k = k % numberOfAlphabets
-	cipheredMessage := make([]rune, len(s))
+	cipheredMessage := make([]rune, 0)
 	for _, r := range s {
 		cipheredLetter := r
 		if unicode.IsLetter(r) {
