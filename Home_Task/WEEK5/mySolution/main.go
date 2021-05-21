@@ -9,10 +9,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 )
 
 // ---------------------------------------------------------
@@ -37,21 +37,41 @@ This program converts feet into meters.
 Usage:
 feet [feetsToConvert]`
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println(strings.TrimSpace(usage))
-		return
+/*
+ * Checks number of arguments
+ * Input parameters - args []string  -> slice of arguments containing feet value to be converted
+ * Return values - string, error -> string to denote args[1], error to denote unwanted number of arguments
+ */
+func checkArguments(args []string) (string, error) {
+	if len(args) < 2 {
+		return "", errors.New("ERROR: Too less arguments!")
+	} else if len(args) > 2 {
+		return "", errors.New("ERROR: Too many arguments!")
 	}
+	return args[1], nil
+}
 
-	arg := os.Args[1]
-
-	feet, err := strconv.ParseFloat(arg, 64)
-
-	if err != nil {
-		fmt.Printf("error: '%s' is not a number.", arg)
-	} else {
+/*
+ * Converts Feet to meters
+ * Input parameters - feetValue string  -> string value which might contain feet representation
+ * Return values - string, error -> string to denote formatted output, error to denote any exception while parsing input
+ */
+func convertFeetToMeter(feetValue string) (string, error) {
+	if feet, err := strconv.ParseFloat(feetValue, 64); err == nil {
 		meters := feet * 0.3048
-		fmt.Printf("%g feet is %g meters.\n", feet, meters)
+		conversionMsg := fmt.Sprintf("%g feet is %g meters.", feet, meters)
+		return conversionMsg, nil
 	}
+	errString := fmt.Sprintf("ERROR: '%s' is not a number.", feetValue)
+	return "", errors.New(errString)
+}
 
+func main() {
+	if arg, errArgSize := checkArguments(os.Args); errArgSize != nil {
+		fmt.Println(errArgSize)
+	} else if meterValue, errConversion := convertFeetToMeter(arg); errConversion != nil {
+		fmt.Println(errConversion)
+	} else {
+		fmt.Println(meterValue)
+	}
 }
