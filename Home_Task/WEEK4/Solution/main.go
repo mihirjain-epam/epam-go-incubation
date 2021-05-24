@@ -128,6 +128,7 @@ func decodeGames() ([]game, error) {
 	err := json.Unmarshal([]byte(data), &decodedGames)
 	if err != nil {
 		fmt.Println("Decoding failed due to error:", err)
+		return nil, err
 	}
 	games := make([]game, len(decodedGames))
 	for i, dg := range decodedGames {
