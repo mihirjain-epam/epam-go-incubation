@@ -1,109 +1,129 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
 
-/*
- * Five silent philosophers sit at a round table with bowls of spaghetti.
- * Forks are placed between each pair of adjacent philosophers.
- * Each philosopher must alternately think and eat.
- * However, a philosopher can only eat spaghetti when they have both left and right forks.
- * Each fork can be held by only one philosopher and so a philosopher can use the fork only if it is not being used by another philosopher.
- * After an individual philosopher finishes eating, they need to put down both forks so that the forks become available to others.
- * A philosopher can only take the fork on their right or the one on their left as they become available
-   and they cannot start eating before getting both forks.
- * Eating is not limited by the remaining amounts of spaghetti or stomach space; an infinite supply and an infinite demand are assumed.
- * The problem is how to design a discipline of behavior (a concurrent algorithm) such that no philosopher will starve;
- * i.e., each can forever continue to alternate between eating and thinking,
-   assuming that no philosopher can know when others may want to eat or think.
- * Five silent philosophers sit at a round table with bowls of spaghetti. Forks are placed between each pair of adjacent philosophers.
- * Each philosopher must alternately think and eat.
- * However, a philosopher can only eat spaghetti when they have both left and right forks.
- * Each fork can be held by only one philosopher and so a philosopher can use the fork only if it is not being used by another philosopher.
- * After an individual philosopher finishes eating, they need to put down both forks so that the forks become available to others.
- * A philosopher can only take the fork on their right or the one on their left as they
-   become available and they cannot start eating before getting both forks.
- * Eating is not limited by the remaining amounts of spaghetti or stomach space;
-   an infinite supply and an infinite demand are assumed.
- * The problem is how to design a discipline of behavior (a concurrent algorithm) such that no philosopher will starve;
- * i.e., each can forever continue to alternate between eating and thinking, assuming that no philosopher can know when others
-   may want to eat or think.
-*/
+const commands = `
+Welcome to dining-philosphers restaurant. Choose your pick of philosphers:
 
-/*
-process P[i]
- while true do
-   {  THINK;
-      PICKUP(CHOPSTICK[i], CHOPSTICK[i+1 mod 5]);
-      EAT;
-      PUTDOWN(CHOPSTICK[i], CHOPSTICK[i+1 mod 5])
-   }
+	> 1   : 2 philosophers next to each other(check for race condition)
+	> 2   : 2 philosophers not next to each other(check for efficiency in non blocking case)
+	> 3   : randomised run
+	> 4   : quits
 
-*/
+`
 
-//initial state - all chopsticks are free
+type fork struct {
+	mutex  *sync.Mutex
+	isFree bool
+}
 
-//two states of philospher possible - think/eat
-//true - think, false - eat
-var philosophers []int = []int{0, 1, 2, 3, 4}
-
-// two states of fork possible - busy/free
-// true - free, false - busy
-var forks map[int]bool = map[int]bool{
-	0: true,
-	1: true,
-	2: true,
-	3: true,
-	4: true,
+type philosopher struct {
+	id                  int
+	leftFork, rightFork *fork
 }
 
 var randPh = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-// release forks if any in use
-func think(id int, m *sync.Mutex, wg *sync.WaitGroup, ch chan<- int) {
-	time.Sleep(2 * time.Second)
-	defer wg.Done()
-	leftForkId := (id + 4) % 5
-	rightForkId := (id + 1) % 5
-	ch <- id
-	close(ch)
-	m.Lock()
-	forks[leftForkId] = true
-	forks[rightForkId] = true
-	fmt.Printf("philosopher %d is thinking\n", id)
-	m.Unlock()
-}
-
-// occupy 2 forks
-func eat(id int, m *sync.Mutex, wg *sync.WaitGroup, ch <-chan int) {
-	defer wg.Done()
-	leftForkId := (id + 4) % 5
-	rightForkId := (id + 1) % 5
-	m.Lock()
-	forks[leftForkId] = false
-	forks[rightForkId] = false
-	fmt.Printf("philosopher %d is eating\n", id)
-	if _, ok := <-ch; ok {
-		time.Sleep(2 * time.Second)
-		m.Unlock()
-	}
-}
-
 func main() {
-	m := &sync.Mutex{}
 	wg := &sync.WaitGroup{}
-	for i := 0; i < 10; i++ {
-		ch := make(chan int)
-		id := randPh.Intn(5)
-		fmt.Println(id)
-		wg.Add(1)
-		go eat(id, m, wg, ch)
-		wg.Add(1)
-		go think(id, m, wg, ch)
+	forks := make([]*fork, 5)
+	for i := 0; i < 5; i++ {
+		forks[i] = &fork{&sync.Mutex{}, true}
 	}
+	philosophers := make([]*philosopher, 5)
+	for i := 0; i < 5; i++ {
+		philosophers[i] = &philosopher{i, forks[(i)%5], forks[(i+1)%5]}
+	}
+	runByUsersChoice(philosophers, forks, wg)
 	wg.Wait()
+}
+
+/*
+ eat method allows philosopher to simulate eat activity concurrently
+
+ Input arguments -> wg *sync.WaitGroup - wait group
+
+ Method pointer reciever -> p *philosopher - bind to philosopher struct
+
+ Return value -> nil
+*/
+func (p *philosopher) eat(wg *sync.WaitGroup) {
+	defer wg.Done()
+	fmt.Printf("%d Not yet obtained locks :%d \n", time.Now().Unix(), p.id)
+	p.leftFork.mutex.Lock()
+	p.rightFork.mutex.Lock()
+	p.leftFork.isFree = false
+	p.rightFork.isFree = false
+
+	fmt.Printf("%d Starting to eat:%d \n", time.Now().Unix(), p.id)
+	time.Sleep(2 * time.Second)
+	fmt.Printf("%d finishing eating:%d \n", time.Now().Unix(), p.id)
+
+	p.leftFork.isFree = true
+	p.rightFork.isFree = true
+	p.rightFork.mutex.Unlock()
+	p.leftFork.mutex.Unlock()
+	fmt.Printf("%d released locks :%d \n", time.Now().Unix(), p.id)
+
+}
+
+/*
+ runByUsersChoice function allows user to choose which condition needs to be checked
+
+ Input arguments ->
+
+ philosophers []*philosopher - slice containing all philosophers
+
+ forks []*fork - slice containing all forks
+
+ wg *sync.WaitGroup - wait group
+
+ Return value -> nil
+*/
+func runByUsersChoice(philosophers []*philosopher, forks []*fork, wg *sync.WaitGroup) {
+	scanner := bufio.NewScanner(os.Stdin)
+	exitFlag := false
+	for !exitFlag {
+		fmt.Print(commands)
+		scanner.Scan()
+		command := strings.Trim(scanner.Text(), " ")
+		if len(command) != 0 {
+			switch command {
+			case "1":
+				p1 := randPh.Intn(5)
+				p2 := (p1 + 1) % 5
+				wg.Add(2)
+				go philosophers[p1].eat(wg)
+				go philosophers[p2].eat(wg)
+				wg.Wait()
+			case "2":
+				p1 := randPh.Intn(5)
+				p2 := (p1 + 2) % 5
+				wg.Add(2)
+				go philosophers[p1].eat(wg)
+				go philosophers[p2].eat(wg)
+				wg.Wait()
+			case "3":
+				for i := 0; i < 5; i++ {
+					id := randPh.Intn(5)
+					wg.Add(1)
+					go philosophers[id].eat(wg)
+				}
+				wg.Wait()
+			case "4":
+				exitFlag = true
+			default:
+				fmt.Print("\nPlease select from the provided choice:\n")
+				continue
+			}
+		}
+	}
 }
