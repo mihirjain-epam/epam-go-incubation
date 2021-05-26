@@ -28,7 +28,7 @@ func main() {
 		for i := 0; i < 10; i++ {
 			ch <- i
 		}
-		close(ch) // ch <- 0
+		// close(ch) // ch <- 0
 		// toChannel := 2
 		// ch <- toChannel
 		// ch <- 0

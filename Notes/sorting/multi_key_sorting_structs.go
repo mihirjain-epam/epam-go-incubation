@@ -7,6 +7,11 @@ type Person struct {
 	Nationality string
 }
 
+/*
+* Function as user-defined type can be declared using the type keyword
+ */
+type lessFunc func(p1, p2 *Change) bool
+
 func main() {
 
 }
