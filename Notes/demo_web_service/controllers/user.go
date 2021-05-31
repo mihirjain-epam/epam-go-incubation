@@ -13,6 +13,13 @@ type UserController struct {
 	userIDPattern *regexp.Regexp
 }
 
+// user constructor
+func newUserController() *UserController {
+	return &UserController{
+		userIDPattern: regexp.MustCompile(`^/users/(\d+)/?`),
+	}
+}
+
 //  (uc UserController)  means binding to UserController or in simple words an class method
 func (uc UserController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/users" {
@@ -31,7 +38,7 @@ func (uc UserController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		id, err := strconv.Atoi(matches[1])
 		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusBadRequest)
 		}
 		switch r.Method {
 		case http.MethodGet:
@@ -107,11 +114,4 @@ func (uc UserController) parseRequest(r *http.Request) (models.User, error) {
 		return models.User{}, err
 	}
 	return u, nil
-}
-
-// constructor
-func newUserController() *UserController {
-	return &UserController{
-		userIDPattern: regexp.MustCompile(`^/users/(\d+)/?`),
-	}
 }
