@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -18,18 +17,22 @@ func main() {
 	// fmt.Printf("%q", b)
 	// fmt.Sprint(s)
 
-	a := "plain string"
-	first := a[0]
-	fmt.Println(first)
-	fmt.Println(reflect.TypeOf(first))
+	// a := "plain string"
+	// first := a[0]
+	// fmt.Println(first)
+	// fmt.Println(reflect.TypeOf(first))
 
-	str := "something"
-	r := []rune(str)
-	fmt.Printf("%q", r)
+	// str := "something"
+	// r := []rune(str)
+	// fmt.Printf("%q", r)
 
-	copied := deepCopy(str)
-	fmt.Println(&copied, &str)
-	fmt.Println(&r[0], &str)
+	// copied := deepCopy(str)
+	// fmt.Println(&copied, &str)
+	// fmt.Println(&r[0], &str)
+
+	a := 97
+	var ab byte = byte(a)
+	fmt.Println(a, ab)
 
 }
 

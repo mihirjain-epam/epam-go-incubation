@@ -1,0 +1,8 @@
+{
+    "Port":         5000,
+    "BasePath":     "/books",
+    "DBName":       "my_db",
+    "DBDriverName": "mysql",
+    "DBUserName":   "root",
+    "DBPassword":   "root"
+}
