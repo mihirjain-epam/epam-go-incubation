@@ -1,6 +1,7 @@
 package ormHandler
 
 import (
+	"fmt"
 	"sync"
 
 	"epam.com/web-services/library-management/books-service/config"
@@ -18,6 +19,7 @@ func New() *orm.Ormer {
 				config.Config.DBName+"?charset=utf8")
 		orm.RegisterDriver("mysql", orm.DRMySQL)
 		instantiated = orm.NewOrm()
+		fmt.Println(instantiated)
 	})
 	return &instantiated
 }

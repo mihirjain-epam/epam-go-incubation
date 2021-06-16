@@ -1,0 +1,6 @@
+{
+    "Port":         5002,
+    "BasePath":     "/library",
+    "UsersURI":     "/users",
+    "BooksURI":     "/books"
+}
