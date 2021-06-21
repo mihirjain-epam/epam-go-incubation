@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -11,7 +12,7 @@ import (
 	"epam.com/web-services/library-management/books-service/repository"
 )
 
-const booksPath = "/books"
+var booksPath = os.Getenv("BasePath")
 
 func handleBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 	"epam.com/web-services/library-management/users-service/repository"
 )
 
-const usersPath = "/users"
+var usersPath = os.Getenv("BasePath")
 
 func handleUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

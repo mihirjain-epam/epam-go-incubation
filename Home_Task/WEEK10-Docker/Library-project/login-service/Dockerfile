@@ -12,6 +12,9 @@ ADD . /app
 ## any further commands inside our /app
 ## directory
 WORKDIR /app
+
+ENV Port=5003
+
 ## we run go build to compile the binary
 ## executable of our Go program
 RUN go build -o main .

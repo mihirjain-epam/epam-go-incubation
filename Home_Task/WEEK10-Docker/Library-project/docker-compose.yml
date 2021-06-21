@@ -8,7 +8,8 @@ services:
         ports: 
             - "5000:5000"
         restart: on-failure
-        env_file: db.env
+        env_file: 
+            - db.env
     
     users-service:
         build: "users-service"
@@ -36,6 +37,8 @@ services:
             - "5002:5002"
         restart: on-failure
         env_file: db.env
+            # - db.env
+            # - library-service/conf.env
         environment:
             - "UsersServiceURL=http://users-service:5001"
             - "BooksServiceURL=http://books-service:5000"
