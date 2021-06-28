@@ -2,10 +2,11 @@ package authorization
 
 import (
 	"crypto/rsa"
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"time"
 
-	"epam.com/web-services/library-management/library-service/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
 )
@@ -30,14 +31,25 @@ func getPublicKey() (*rsa.PublicKey, error) {
 	return verifyKey, nil
 }
 
-type UserTokenClaims struct {
+type AccessTokenClaims struct {
 	*jwt.StandardClaims
 	TokenType string
-	models.UserToken
+	AccessToken
 }
 
-func ValidateToken(w http.ResponseWriter, r *http.Request) (*jwt.Token, error) {
-	token, err := request.ParseFromRequestWithClaims(r, request.OAuth2Extractor, &UserTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+type RefreshToken struct {
+	UserId int64 `json:"user_id"`
+}
+type AccessToken struct {
+	UserId     int64 `json:"user_id"`
+	Authorized bool  `json:"authorized"`
+	IsAdmin    bool  `json:"is_admin"`
+	Exp        int64 `json:"exp"`
+}
+
+func ValidateToken(w http.ResponseWriter, r *http.Request) (*jwt.Token, *AccessTokenClaims, error) {
+	var accessTokenClaims AccessTokenClaims
+	token, err := request.ParseFromRequestWithClaims(r, request.OAuth2Extractor, &accessTokenClaims, func(token *jwt.Token) (interface{}, error) {
 		// since we only use the one private key to sign the tokens,
 		// we also only use its public counter part to verify
 		publicKey, pubErr := getPublicKey()
@@ -48,7 +60,14 @@ func ValidateToken(w http.ResponseWriter, r *http.Request) (*jwt.Token, error) {
 	})
 	// If the token is missing or invalid, return error
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return token, nil
+	if !token.Valid {
+		return nil, nil, errors.New("invalid token")
+	}
+	now := time.Now().Unix()
+	if !accessTokenClaims.Authorized || accessTokenClaims.Exp <= now || !accessTokenClaims.IsAdmin {
+		return nil, nil, errors.New("unauthorized")
+	}
+	return token, &accessTokenClaims, nil
 }

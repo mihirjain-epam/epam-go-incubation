@@ -65,7 +65,7 @@ func (u UserId) getUser(w http.ResponseWriter, r *http.Request) {
 
 // Add Users http FuncHandler
 func addUser(w http.ResponseWriter, r *http.Request) {
-	_, authErr := authorization.ValidateToken(w, r)
+	_, _, authErr := authorization.ValidateToken(w, r)
 	if authErr != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "Invalid token:", authErr)
@@ -105,7 +105,7 @@ func (u UserId) updateUser(w http.ResponseWriter, r *http.Request) {
 
 // Delete User http FuncHandler
 func (u UserId) deleteUser(w http.ResponseWriter, r *http.Request) {
-	_, authErr := authorization.ValidateToken(w, r)
+	_, _, authErr := authorization.ValidateToken(w, r)
 	if authErr != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "Invalid token:", authErr)

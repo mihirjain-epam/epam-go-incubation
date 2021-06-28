@@ -58,7 +58,7 @@ func (b BookId) getBook(w http.ResponseWriter, r *http.Request) {
 
 // Add Books http FuncHandler
 func addBook(w http.ResponseWriter, r *http.Request) {
-	_, authErr := authorization.ValidateToken(w, r)
+	_, _, authErr := authorization.ValidateToken(w, r)
 	if authErr != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "Invalid token:", authErr)
@@ -98,7 +98,7 @@ func (b BookId) updateBook(w http.ResponseWriter, r *http.Request) {
 
 // Delete Book http FuncHandler
 func (b BookId) deleteBook(w http.ResponseWriter, r *http.Request) {
-	_, authErr := authorization.ValidateToken(w, r)
+	_, _, authErr := authorization.ValidateToken(w, r)
 	if authErr != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "Invalid token:", authErr)
