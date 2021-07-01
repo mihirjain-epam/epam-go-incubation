@@ -7,3 +7,5 @@ Run all tests for Unsafe methods using - `go test -run ProxyOrCacheRequest/Unsaf
 Run tests for individual Unsafe methods using - `go test -run ProxyOrCacheRequest/UnsafeMethods/UnsafeMethod=<unsafe-method>`
 *Note* - testing supported for ports - [POST,PUT,DELETE]
 Run test for BadUrl using - `go test -run ProxyOrCacheRequest/BadUrl`
+
+To check coverage - `go test -coverprofile="c.out"` `go tool cover -html="c.out"`
