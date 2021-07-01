@@ -55,12 +55,14 @@ func proxyOrCacheRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func startServer() {
 	http.HandleFunc("/github.com/stretchr/testify/assert", proxyOrCacheRequest)
 	go http.ListenAndServe(":8080", nil)
-	err1 := http.ListenAndServeTLS(":9443", "RootCA.crt", "RootCA.key", nil)
+	err1 := http.ListenAndServeTLS(":9443", "server.crt", "server.key", nil)
 	if err1 != nil {
 		log.Fatal(err1)
 	}
-
+}
+func main() {
+	startServer()
 }

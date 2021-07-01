@@ -1,0 +1,18 @@
+mode: set
+epam.com/go/proxyCacheServer/main.go:16.66,18.32 2 1
+epam.com/go/proxyCacheServer/main.go:27.2,27.97 1 1
+epam.com/go/proxyCacheServer/main.go:31.2,35.11 5 1
+epam.com/go/proxyCacheServer/main.go:18.32,20.3 1 1
+epam.com/go/proxyCacheServer/main.go:20.8,20.39 1 1
+epam.com/go/proxyCacheServer/main.go:20.39,22.3 1 1
+epam.com/go/proxyCacheServer/main.go:22.8,25.3 2 1
+epam.com/go/proxyCacheServer/main.go:27.97,30.3 2 1
+epam.com/go/proxyCacheServer/main.go:35.11,38.3 2 0
+epam.com/go/proxyCacheServer/main.go:38.8,40.57 2 1
+epam.com/go/proxyCacheServer/main.go:44.3,46.17 3 1
+epam.com/go/proxyCacheServer/main.go:50.3,54.25 5 1
+epam.com/go/proxyCacheServer/main.go:40.57,43.4 2 1
+epam.com/go/proxyCacheServer/main.go:46.17,49.4 2 0
+epam.com/go/proxyCacheServer/main.go:58.20,62.17 4 1
+epam.com/go/proxyCacheServer/main.go:62.17,64.3 1 0
+epam.com/go/proxyCacheServer/main.go:66.13,68.2 1 0
