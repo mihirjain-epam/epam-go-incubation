@@ -9,3 +9,6 @@ Run tests for individual Unsafe methods using - `go test -run ProxyOrCacheReques
 Run test for BadUrl using - `go test -run ProxyOrCacheRequest/BadUrl`
 
 To check coverage - `go test -coverprofile="c.out"` `go tool cover -html="c.out"`
+
+Known issue in go prevents to add extra CA in windows for self-signed certificate. Hence if `https` is used for port `9443` it will show as test failed.
+Issue - https://github.com/golang/go/issues/18609
