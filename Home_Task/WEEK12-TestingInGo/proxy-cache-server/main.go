@@ -1,10 +1,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -12,6 +14,22 @@ import (
 
 const nonTlsHost = "http://godoc.org"
 const tlsHost = "https://godoc.org"
+
+var responseCache *cache.Cache
+
+func init() {
+	responseCache = cache.New(5*time.Minute, 10*time.Minute)
+}
+
+func isRequestCached(w http.ResponseWriter, r *http.Request) bool {
+	cachedResponse, found := responseCache.Get(r.URL.Path)
+	if found {
+		fmt.Println("Loading from cache")
+		fmt.Fprintf(w, cachedResponse.(string))
+		return true
+	}
+	return false
+}
 
 func proxyOrCacheRequest(w http.ResponseWriter, r *http.Request) {
 	var url string
@@ -28,13 +46,10 @@ func proxyOrCacheRequest(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	var responseCache = cache.New(5*time.Minute, 10*time.Minute)
-	cachedResponse, found := responseCache.Get(r.URL.Path)
 	fmt.Println("url : ", url)
 	fmt.Println("HOST :: ", r.Host)
-	if found {
-		fmt.Println("Loading from cache")
-		fmt.Fprintf(w, cachedResponse.(string))
+	if isRequestCached(w, r) {
+		return
 	} else {
 		response, err := http.Get(url)
 		if err != nil || response.StatusCode != http.StatusOK {
@@ -55,14 +70,39 @@ func proxyOrCacheRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func startServer() {
+func startServer(wg *sync.WaitGroup) (*http.Server, *http.Server) {
+	nonTlsSrv := &http.Server{Addr: ":8080"}
 	http.HandleFunc("/github.com/stretchr/testify/assert", proxyOrCacheRequest)
-	go http.ListenAndServe(":8080", nil)
-	err1 := http.ListenAndServeTLS(":9443", "server.crt", "server.key", nil)
-	if err1 != nil {
-		log.Fatal(err1)
+	go func() {
+		defer wg.Done() // let main know we are done cleaning up
+
+		// always returns error. ErrServerClosed on graceful close
+		if err := nonTlsSrv.ListenAndServe(); err != http.ErrServerClosed {
+			// unexpected error. port in use?
+			log.Fatalf("ListenAndServe(): %v", err)
+		}
+	}()
+
+	tlsSrv := &http.Server{
+		Addr: ":9443",
+		TLSConfig: &tls.Config{
+			MinVersion:               tls.VersionTLS13,
+			PreferServerCipherSuites: true,
+		},
 	}
+	go func() {
+		defer wg.Done() // let main know we are done cleaning up
+
+		// always returns error. ErrServerClosed on graceful close
+		if err := tlsSrv.ListenAndServeTLS("server.crt", "server.key"); err != http.ErrServerClosed {
+			// unexpected error. port in use?
+			log.Fatalf("ListenAndServeTLS(): %v", err)
+		}
+	}()
+
+	return nonTlsSrv, tlsSrv
 }
 func main() {
-	startServer()
+	httpServerExitDone := &sync.WaitGroup{}
+	startServer(httpServerExitDone)
 }

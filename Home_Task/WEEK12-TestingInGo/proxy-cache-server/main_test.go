@@ -1,16 +1,35 @@
 package main
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"sync"
 	"testing"
 	"time"
 )
 
-func TestStartServer(t *testing.T) {
-	go startServer()
+func TestMain(m *testing.M) {
+	// init server {setup code}
+	httpServerExitDone := &sync.WaitGroup{}
+	httpServerExitDone.Add(2)
+	nonTlsServer, tlsServer := startServer(httpServerExitDone)
 	time.Sleep(5 * time.Second)
+	// init complete
+
+	exitCode := m.Run()
+
+	// shutdown server {teardown code}
+	nonTlsServer.Shutdown(context.TODO())
+	tlsServer.Shutdown(context.TODO())
+
+	//exit
+	os.Exit(exitCode)
+}
+
+func TestStartServer(t *testing.T) {
 	newreq := func(method, url string, body io.Reader) *http.Request {
 		r, err := http.NewRequest(method, url, body)
 		if err != nil {
@@ -24,25 +43,41 @@ func TestStartServer(t *testing.T) {
 		r    *http.Request
 	}{
 		{name: "NonTls", r: newreq("GET", "http://localhost:8080/", nil)},
-		{name: "Tls", r: newreq("GET", "http://localhost:9443/", nil)}, // making this https fails the test as self-signed cert is not trusted
+		{name: "Tls", r: newreq("GET", "https://localhost:9443/", nil)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.name == "Tls" {
+				t.Skip(`test for https endpoint is skipped due to usage of self-signed
+				certificate and go unable to fetch trusted CA from Windows Trusted CA store.
+				 Reference for known golang issue - https://github.com/golang/go/issues/18609`)
+			}
 			_, err := http.DefaultClient.Do(tt.r)
 			if err != nil {
 				t.Errorf("Request timed out at % server", tt.name)
 			}
 		})
 	}
+
+}
+
+func TestIsRequestCached(t *testing.T) {
+	t.Run("RequestCaching", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "http://localhost:8080/github.com/stretchr/testify/assert", nil)
+		res := httptest.NewRecorder()
+		if isRequestCached(res, req) {
+			t.Errorf("Is Request Cached, expected flag: %v, received flag:%v", false, true)
+		}
+		// calling actual request to add to cache
+		proxyOrCacheRequest(res, req)
+		//checking if cache is updated or not
+		if !isRequestCached(res, req) {
+			t.Errorf("Is Request Cached, expected flag: %v, received flag:%v", true, false)
+		}
+	})
 }
 
 func TestProxyOrCacheRequest(t *testing.T) {
-	// init start
-	go http.ListenAndServe(":8080", nil)
-	go http.ListenAndServeTLS(":9443", "RootCA.crt", "RootCA.key", nil)
-	time.Sleep(5 * time.Second) // let the end point start
-	// init end
-
 	// parallel tests for different ports
 	t.Run("Ports", func(t *testing.T) {
 		t.Run("Port=8080", func(t *testing.T) {
